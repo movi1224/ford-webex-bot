@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>fuzzyset.js - a fuzzy string set for javascript</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <link rel="stylesheet" href="site/css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <link rel="stylesheet" href="site/css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="site/css/main.css">
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <!-- <div class="navbar navbar-inverse navbar-fixed-top"> -->
+        <!--     <div class="navbar-inner"> -->
+        <!--         <div class="container"> -->
+        <!--             <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> -->
+        <!--                 <span class="icon-bar"></span> -->
+        <!--                 <span class="icon-bar"></span> -->
+        <!--                 <span class="icon-bar"></span> -->
+        <!--             </a> -->
+        <!--             <a class="brand" href="#">fuzzyset.js</a> -->
+        <!--         </div> -->
+        <!--     </div> -->
+        <!-- </div> -->
+
+        <div class="container">
+
+            <div class="hero-unit">
+                <h1>fuzzyset.js</h1>
+                <p>A fuzzy string set for javascript. A data structure that performs something akin to fulltext search against data to determine likely mispellings and approximate string matching. Scroll down for an interactive example.</p>
+                <p><a class="btn btn-primary btn-large" href="https://github.com/Glench/fuzzyset.js">View and Download on Github &raquo;</a></p>
+            </div>
+
+            <div class="row">
+                <div class="span4">
+                    <h2>Usage</h2>
+                    <pre>
+a = FuzzySet(['Michael Axiak']);
+a.get("micael asiak");
+[[0.8461538461538461, 'Michael Axiak']]
+</pre>
+                </div>
+                <div class="span3">
+                    <h2>Install</h2>
+                    <code>&lt;script src="fuzzyset.js"&gt;&lt;/script&gt;</code>
+                    <p>or</p>
+                    <code>npm install fuzzyset.js</code>
+               </div>
+                <div class="span5">
+                    <h2>Try it out</h2>
+
+                    <p>Open up your console and try it out! <code>f = FuzzySet(['what'])</code></p>
+                    <p>Also check out the <a href="https://github.com/axiak/fuzzyset">python version</a>.</p>
+                </div>
+            </div>
+
+            <hr/>
+
+            <div class="row">
+                <div class="span6">
+                    <h2>Constructor Arguments</h2>
+                    <p>Arguments to constructor function <code>FuzzySet()</code>.</p>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Argument</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>array</td>
+                            <td>An array of strings to initialize the data structure with</td>
+                        </tr>
+                        <tr>
+                            <td>useLevenshtein</td>
+                            <td>Whether or not to use the levenshtein distance to determine the match scoring. Default: True</td>
+                        </tr>
+                        <tr>
+                            <td>gramSizeLower</td>
+                            <td>The lower bound of gram sizes to use, inclusive (see Theory of operation). Default: 2</td>
+                        </tr>
+                        <tr>
+                            <td>gramSizeUpper</td>
+                            <td>The upper bound of gram sizes to use, inclusive (see Theory of operation). Default: 3</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="span6">
+                    <h2>Methods</h2>
+                    <p>Methods on initialized <code>FuzzySet</code> object.</p>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Method</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>get(value, [default], [minScore])</td>
+                            <td>try to match a string to entries, otherwise return null or default if it is given. You can provide an optional score between 0 and 1 that results must be greater than.</td>
+                        </tr>
+                        <tr>
+                            <td>add(value)</td>
+                            <td>add a value to the set returning false if it is already in the set.</td>
+                        </tr>
+                        <tr>
+                            <td>length()</td>
+                            <td>return the number of items in the set.</td>
+                        </tr>
+                        <tr>
+                            <td>isEmpty()</td>
+                            <td>returns true if the set is empty.</td>
+                        </tr>
+                        <tr>
+                            <td>values()</td>
+                            <td>returns an array of the values in the set.</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <hr/>
+
+            <div class="row">
+                <iframe src="ui/index.html?embedded" style="width: 100%; height: 8600px; border: 0;"></iframe>
+            </div>
+
+            <hr/>
+
+            <footer>
+                <p>By <a href="http://glench.com">Glen Chiacchieri</a></p>
+            </footer>
+
+        </div> <!-- /container -->
+
+        <script src="jquery.min.js"></script>
+
+        <script src="site/js/vendor/bootstrap.min.js"></script>
+
+        <script src="lib/fuzzyset.js"></script>
+
+    </body>
+</html>
