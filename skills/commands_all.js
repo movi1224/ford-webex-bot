@@ -1,26 +1,8 @@
-/*********************************************************************
-
-READ ME
-@Yangkai
-Please do not add any more wordings to the fuzzy string arrays.
-Also, please keep the comments and organization 
-
-TO-DOs
-- Alerts: Shift in Latency, saturation, traffic, etc.
-- Reports
-  - https://botkit.ai/docs/v0/storage.html
-  - https://www.npmjs.com/package/node-schedule
-- Add # of hits to least/most called operations (28 day window)
-
-**********************************************************************/
-
-
-
 
 /*********************************************************************************
                           AJAX LOG ANALYTICS API CALLS
 **********************************************************************************/
-var source = require('./token.js');
+var source = require('./atoken.js');
 var token = source.get_token();
 var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
     result7 = "", result8 = "", result9 = "", result10 = "", result11 = "", result12 = "",
