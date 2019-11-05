@@ -31,17 +31,20 @@ module.exports = function(controller) {
     }
   };
 
-  request(options, function(error, response, body) {
-    if (error) throw new Error(error);
-    var len = body.length;
-    var start = body.indexOf("access_token");
-    token = body.substring(start + 15, len - 2);
-    fs.writeFile("token.txt", token, function(err) {
-      if (err) {
-        console.log("error in buffering token.");
-      }
+  timeout = setInterval(() => {
+    request(options, function(error, response, body) {
+      if (error) throw new Error(error);
+      var len = body.length;
+      var start = body.indexOf("access_token");
+      token = body.substring(start + 15, len - 2);
+      fs.writeFile("token.txt", token, function(err) {
+        //console.log("******************token.txt updated*****************************");
+        if (err) {
+          console.log("error in buffering token.");
+        }
+      });
     });
-  });
+  }, 10000);
 
   function get_token() {
     var token = fs.readFileSync("token.txt");
