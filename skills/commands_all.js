@@ -3,12 +3,7 @@
                           AJAX LOG ANALYTICS API CALLS
 **********************************************************************************/
 var source = require('./atoken.js');
-var token = "";
-setInterval(function () { 
-    token = source.get_token();
-    //console.log("******************token updated*****************************");
-    //console.log(token);
-}, 10000); 
+var token = source.get_token();
 
 var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
     result7 = "", result8 = "", result9 = "", result10 = "", result11 = "", result12 = "",
