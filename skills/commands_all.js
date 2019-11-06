@@ -461,7 +461,7 @@ var all_commands = [];
 //    Basic Commands
 /////////////////////////
 
-// Hello
+// hello
 var hellos = ["hello", "hey", "hi", "good morning", "good afternoon", "good evening", "to meet you", "yo"];
 all_commands = all_commands.concat(hellos);
 
@@ -734,7 +734,7 @@ module.exports = function(controller) {
       
       // Checks if user is saying hello
       if (hellos.includes(command_result[0][1]) == true) {
-        var text = "Hello from the other side! API monitoring service initiated.";
+        var text = "Hello from the other side! This is the heroku version.";
         /**************************************************************************
                     alert for sudden shift of traffic/latency/errors
         ***************************************************************************/
