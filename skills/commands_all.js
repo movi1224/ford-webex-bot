@@ -1,21 +1,71 @@
+/*********************************************************************
+
+READ ME
+@Yangkai
+Please keep the comments and organization 
+
+TO-DOs
+- Alerts: Shift in Latency, saturation, traffic, etc.
+- Reports
+  - https://botkit.ai/docs/v0/storage.html
+  - https://www.npmjs.com/package/node-schedule
+- Add more help commands - double check reports/hits for most/least called operations
+
+**********************************************************************/
+
+
+
+
 /*********************************************************************************
                           AJAX LOG ANALYTICS API CALLS
 **********************************************************************************/
+var request = require("request");
+var fs = require("fs");
+var a = "";
+var token = "";
+var options = {
+  method: "POST",
+  url:
+    "https://login.microsoftonline.com/c990bb7a-51f4-439b-bd36-9c07fb1041c0/oauth2/token",
+  headers: {
+    "cache-control": "no-cache",
+    Connection: "keep-alive",
+    Cookie:
+      "x-ms-gateway-slice=prod; stsservicecookie=ests; fpc=Ag-uScbRN1lLgIIZnM5DN6ieRkyGAgAAAGxVLNUOAAAA",
+    "Content-Length": "215",
+    "Accept-Encoding": "gzip, deflate",
+    Host: "login.microsoftonline.com",
+    "Postman-Token":
+      "71695bc8-dc8f-4f7c-9ebc-8ea06f697840,eed1cdb6-6786-4594-af25-fa80c0c1fd3b",
+    "Cache-Control": "no-cache",
+    Accept: "*/*",
+    "User-Agent": "PostmanRuntime/7.17.1",
+    "Content-Type": "application/x-www-form-urlencoded"
+  },
+  form: {
+    grant_type: "client_credentials",
+    client_id: "11e483e9-f160-4a2c-a927-9f612b286962",
+    redirect_uri: "http://localhost:3000",
+    resource: "https://api.loganalytics.io",
+    client_secret: "Bc]OB8]4LfmLqOdDu0z:oI1lIjgD.Lft"
+  }
+};
 
-module.exports = function(controller) {  
+request(options, function(error, response, body) {
+  if (error) throw new Error(error);
+  var len = body.length;
+  var start = body.indexOf("access_token");
+  token = body.substring(start + 15, len - 2);
+  //console.log(token);
+  fs.writeFile("token.txt", token, function(err) {
+    if (err) {
+      console.log("error in buffering token.");
+    }
+  });
+});
 
-var source = require('./atoken.js');
-var token = source.get_token();
-setInterval(function () { 	
-  token = source.get_token();	
-}, 10000); 	  
-
-setInterval(function () { 	
-  console.log("###########################################");
-  console.log("token is:" + token);
-  console.log("###########################################"); 
-}, 10000); 	    
- 
+token = fs.readFileSync("token.txt");
+token = token.toString();
 
 var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
     result7 = "", result8 = "", result9 = "", result10 = "", result11 = "", result12 = "",
@@ -24,7 +74,7 @@ var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result
     result25 = "", result26 = "", result27 = "", result28 ="", result29 = "", result30 = "",
     result31 = "", result32 = "", result33 = "", result34 ="", result35 = "", result36 = "",
     result37 = "", result38 = "", result39 = "", result40 ="", result41 = "", result42 = "",
-    result43 = "";
+    result43 = "", result44 = "", result45 = "", result46 = "", result47 = "", result48 = "";
 var newresult = "",
   oldresult = "",
   newresult2 = "",
@@ -42,125 +92,107 @@ const { window } = new JSDOM();
 const {document} = (new JSDOM('<script></script>')).window;
 global.document = document;
 var $ = jQuery = require('jquery')(window);
-var settings;
+var settings = {
+	        "async": true,
+	        "crossDomain": true,
+	        "url": "https://api.loganalytics.io/v1/workspaces/188e060f-1491-4080-acee-d92acbff84f3/query",
+	        "type": "POST",
+	        "headers": {
+		        "Content-Type": "application/json",
+		        "Authorization": "Bearer " + token,
+		        "Postman-Token": "cef60051-9b20-4953-a83f-3da83fee0fd2,1499eec5-079a-4aab-aef5-6190439ece14",
+	        },
+	        "processData": false,
+	        "timeout": 100000
+};
 
-setInterval(function() {
-  settings = {
-    async: true,
-    crossDomain: true,
-    url:
-      "https://api.loganalytics.io/v1/workspaces/188e060f-1491-4080-acee-d92acbff84f3/query",
-    type: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + token,
-      "Postman-Token":
-        "cef60051-9b20-4953-a83f-3da83fee0fd2,1499eec5-079a-4aab-aef5-6190439ece14"
-    },
-    processData: false,
-    timeout: 100000
-  };
-
-  // Checks to see if any data was returned from the AJAX call.
-  // If no data was returned, an error message is returned
-  // If the first data value is an empty string, the function will get the data from the next row
-  function checkResult(result, row_num, is_unit = false) {
-    try {
-      var r = result["tables"][0]["rows"][0][row_num];
-      if (r === "") {
-        r = result["tables"][0]["rows"][1][row_num];
-      }
-    } catch (err) {
-      var r = "not available right now because no data was found.";
-    }
-    if (is_unit === true) {
-      r = appendUnit(r);
-    }
-    console.log(r);
-    return r;
-  }
-
-  // Adds ms to a string if a value is associated with the string
-  function appendUnit(string) {
-    if (string != "not available right now because no data was found.") {
-      string += " ms.";
-    }
-    return string;
-  }
-
-  function increaseOrDecrease(one, two) {
-    if (one > two) {
-      return "decreased";
-    } else {
-      return "increased";
+// Checks to see if any data was returned from the AJAX call.
+// If no data was returned, an error message is returned
+// If the first data value is an empty string, the function will get the data from the next row
+function checkResult(result, row_num, is_unit=false)
+{
+  try {
+    var r = result["tables"][0]["rows"][0][row_num];
+    if (r === "")
+    {
+      r = result["tables"][0]["rows"][1][row_num];
     }
   }
+  catch(err) {
+    var r = "not available right now because no data was found.";
+  }
+  if (is_unit === true)
+  {
+    r = appendUnit(r);
+  }
+  return r;
+};
 
-  // Formats the product usage data into a human-readable form
-  function formatProductUsage(result, product = null) {
-    var date_index = 0;
-    var count_index = 1;
-    if (product != null) {
-      date_index++;
-      count_index++;
-    }
+// Adds ms to a string if a value is associated with the string
+function appendUnit(string)
+{
+  if (string != "not available right now because no data was found.")
+  {
+    string += " ms.";
+  }
+  return string
+}
 
-    var week_4_count = result["tables"][0]["rows"][1][count_index]; // Most recent week
-    var week_3_count = result["tables"][0]["rows"][2][count_index];
-    var week_2_count = result["tables"][0]["rows"][3][count_index];
-    var week_1_count = result["tables"][0]["rows"][4][count_index]; // Least recent week
+function increaseOrDecrease(one, two)
+{
+  if (one > two)
+  {
+    return "decreased";
+  }
+  else
+  {
+    return "increased";
+  }
+}
 
-    var week_4_date = result["tables"][0]["rows"][1][date_index]; // Most recent week
-    var week_3_date = result["tables"][0]["rows"][2][date_index];
-    var week_2_date = result["tables"][0]["rows"][3][date_index];
-    var week_1_date = result["tables"][0]["rows"][4][date_index]; // Least recent week
-
-    if (product == "trusted-services") {
-      var message =
-        "Here is a summary of product usage for 'trusted-services' over the past 4 weeks: \n";
-    } else if (product == "trusted-consumer") {
-      var message =
-        "Here is a summary of product usage for 'trusted-consumer' over the past 4 weeks: \n";
-    } else {
-      var message =
-        "Here is a summary of product usage for all products over the past 4 weeks: \n";
-    }
-
-    message +=
-      "- For the week of " +
-      week_1_date +
-      ", there were " +
-      week_1_count +
-      " hits.\n";
-    message +=
-      "- For the week of " +
-      week_2_date +
-      ", the number of hits " +
-      increaseOrDecrease(week_1_count, week_2_count) +
-      " to " +
-      week_2_count +
-      " hits.\n";
-    message +=
-      "- For the week of " +
-      week_3_date +
-      ", the number of hits " +
-      increaseOrDecrease(week_2_count, week_3_count) +
-      " to " +
-      week_3_count +
-      " hits.\n";
-    message +=
-      "- For the week of " +
-      week_4_date +
-      ", the number of hits " +
-      increaseOrDecrease(week_3_count, week_4_count) +
-      " to " +
-      week_4_count +
-      " hits.\n";
-
-    return message;
+// Formats the product usage data into a human-readable form
+function formatProductUsage(result, product=null)
+{
+  var date_index = 0;
+  var count_index = 1;
+  if (product != null)
+  {
+    date_index++;
+    count_index++;
   }
   
-  /////////////////////////
+  var week_4_count = result["tables"][0]["rows"][1][count_index];  // Most recent week
+  var week_3_count = result["tables"][0]["rows"][2][count_index];
+  var week_2_count = result["tables"][0]["rows"][3][count_index];
+  var week_1_count = result["tables"][0]["rows"][4][count_index];  // Least recent week
+  
+  var week_4_date = result["tables"][0]["rows"][1][date_index];  // Most recent week
+  var week_3_date = result["tables"][0]["rows"][2][date_index];
+  var week_2_date = result["tables"][0]["rows"][3][date_index];
+  var week_1_date = result["tables"][0]["rows"][4][date_index];  // Least recent week
+  
+  if (product == 'trusted-services')
+  {
+    var message = "Here is a summary of product usage for 'trusted-services' over the past 4 weeks: \n";
+  }
+  else if (product == 'trusted-consumer')
+  {
+    var message = "Here is a summary of product usage for 'trusted-consumer' over the past 4 weeks: \n";
+  }
+  else
+  {
+    var message = "Here is a summary of product usage for all products over the past 4 weeks: \n";
+  }
+  
+  message += "- For the week of " + week_1_date + ", there were " + week_1_count + " hits.\n";
+  message += "- For the week of " + week_2_date + ", the number of hits " + increaseOrDecrease(week_1_count, week_2_count) + " to " + week_2_count + " hits.\n";
+  message += "- For the week of " + week_3_date + ", the number of hits " + increaseOrDecrease(week_2_count, week_3_count) + " to " + week_3_count + " hits.\n";
+  message += "- For the week of " + week_4_date + ", the number of hits " + increaseOrDecrease(week_3_count, week_4_count) + " to " + week_4_count + " hits.\n";
+
+  return message;
+}
+
+/////////////////////////
 //       APIs
 /////////////////////////
 
@@ -460,6 +492,21 @@ settings.data = "{ \r\n\"query\": \"AzureDiagnostics | summarize count() by bin(
 var r = $.ajax(settings);
 r.done( function (response) { result41 = formatProductUsage(response, 'trusted-services');});
 
+
+/////////////////////////
+//   Operation hits
+/////////////////////////
+
+// Operation hits - most
+settings.data = "{ \"query\": \"AzureDiagnostics | summarize count() by bin(TimeGenerated, 28d), operationId_s, apiId_s  | where apiId_s != 'tyler-test' and apiId_s != 'fordpass-recall-service-api' and apiId_s != 'apim-availability-test' | sort by count_ desc;\", \"timespan\": \"P27D\"}";
+var r = $.ajax(settings);
+r.done( function (response) { result44 = checkResult(response, 3); });
+
+// Operation hits - least
+settings.data = "{ \"query\": \"AzureDiagnostics | summarize count() by bin(TimeGenerated, 28d), operationId_s, apiId_s  | where apiId_s != 'tyler-test' and apiId_s != 'fordpass-recall-service-api' and apiId_s != 'apim-availability-test' | sort by count_ asc;\", \"timespan\": \"P27D\"}";
+var r = $.ajax(settings);
+r.done( function (response) { result45 = checkResult(response, 3);});
+
 /////////////////////////
 //   Traffic Shift
 /////////////////////////
@@ -479,11 +526,6 @@ settings.data =
           newrate +
           "."
     });
-
-}, 10000); 	    
-
-
-
 
 /*********************************************************************************
                               FUZZY STRING STUFF
@@ -733,12 +775,19 @@ var product_usage_ts = ["How is my product usage trending week over week for tru
 all_commands = all_commands.concat(product_usage_ts);
 
 /////////////////////////
-//    Traffic Shift
+//    Traffic Shift (Alerts)
 /////////////////////////
 
 var traffic_shift = ["How is my traffic", "traffic", "requests", "How is my traffic shift",
-                    "what is the shift of my traffic"]
+                    "what is the shift of my traffic"];
 all_commands = all_commands.concat(traffic_shift);
+
+/////////////////////////
+//    Reports
+/////////////////////////
+
+var reports = ["Report", "Reports", "Report for the past 28 days", "Reports for the past 4 weeks", "Reports for the past month"];
+all_commands = all_commands.concat(reports);
 
 
 var fuzzy = fuzzyset(all_commands);
@@ -749,25 +798,26 @@ var fuzzy = fuzzyset(all_commands);
 /*********************************************************************************
                                     CHATBOT
 **********************************************************************************/
+module.exports = function(controller) {
 
   controller.hears('.*', 'direct_message,direct_mention', function(bot, message) {
     'use strict';
 
     var command = message['text'];
     var command_result = fuzzy.get(command);
-    console.log(command_result);
-    console.log(command_result[0][1]);
+    // console.log(command_result);
+    // console.log(command_result[0][1]);
     
     // If the user's message has 50% accuracy
     if (command_result != null && command_result[0][0] > .5) {
       
     /////////////////////////
-    //    Basic Commands
+    //Basic Commands & Alerts
     /////////////////////////
       
       // Checks if user is saying hello
       if (hellos.includes(command_result[0][1]) == true) {
-        var text = "Hello from the other side! This is the heroku version.";
+        var text = "Hello from the other side! This is heroku version.";
         /**************************************************************************
                     alert for sudden shift of traffic/latency/errors
         ***************************************************************************/
@@ -780,17 +830,10 @@ var fuzzy = fuzzyset(all_commands);
           var r = $.ajax(settings);
           r.done(function(response) {
             try {
-              newresult = response["tables"][0]["rows"][0][1];
-              //console.log(response["tables"][0]["rows"][0]);
-              //console.log(response["tables"][0]["rows"][1]);              
             } catch (err) {
               bot.reply(message, "Time tracked: " + date + " **error**");
             }
             var checker = response["tables"][0]["rows"];
-            //console.log("*********************test1**************************");
-            //console.log(checker);
-            //console.log("****************************************************");
-            //console.log("absolute difference on traffic: " + Math.abs(Number(newresult)-Number(oldresult)))
             if (oldresult != newresult && oldresult != "" && Math.abs(Number(newresult)-Number(oldresult)) >= 5000) {
               bot.reply(
                 message,
@@ -810,11 +853,6 @@ var fuzzy = fuzzyset(all_commands);
           var r = $.ajax(settings);
           r.done(function(response) {
             newresult1 = response["tables"][0]["rows"][0][1];
-            //console.log("*********************test1**************************");
-            //console.log(response["tables"][0]["rows"][0]);
-            //console.log(response["tables"][0]["rows"][1]);
-            //console.log(response["tables"][0]["rows"][2]);
-            //console.log("****************************************************");
             if (oldresult1 != newresult1 && oldresult1 != "" && Math.abs(Number(newresult1)-Number(oldresult1)) >= 1000) {
               bot.reply(
                 message,
@@ -834,11 +872,6 @@ var fuzzy = fuzzyset(all_commands);
           var r = $.ajax(settings);
           r.done(function(response) {
             newresult2 = response["tables"][0]["rows"][0][1];
-            //console.log("*********************test1**************************");
-            //console.log(response["tables"][0]["rows"][0]);
-            //console.log(response["tables"][0]["rows"][1]);
-            //console.log(response["tables"][0]["rows"][2]);
-            //console.log("****************************************************");
             if (oldresult2 != newresult2 && oldresult2 != "" && Math.abs(Number(newresult2)-Number(oldresult2)) >= 5000) {
               bot.reply(
                 message,
@@ -857,11 +890,6 @@ var fuzzy = fuzzyset(all_commands);
           var r = $.ajax(settings);
           r.done(function(response) {
             newresult3 = response["tables"][0]["rows"][0][1];
-            //console.log("*********************test1**************************");
-            //console.log(response["tables"][0]["rows"][0]);
-           // console.log(response["tables"][0]["rows"][1]);
-            //console.log(response["tables"][0]["rows"][2]);
-            //console.log("****************************************************");
             if (oldresult3 != newresult3 && oldresult3 != "" && Math.abs(Number(newresult3)-Number(oldresult3)) >= 5000) {
               bot.reply(
                 message,
@@ -879,12 +907,6 @@ var fuzzy = fuzzyset(all_commands);
             '{ \r\n\t"query": "AzureDiagnostics | where TimeGenerated > ago(1h) | summarize count() by bin(TimeGenerated,1m), responseCode_d | where responseCode_d == \'500\' | sort by TimeGenerated; "\r\n}';
           var r = $.ajax(settings);
           r.done(function(response) {
-            newresult4 = response["tables"][0]["rows"][0][1];
-            //console.log("*********************test1**************************");
-            //console.log(response["tables"][0]["rows"][0]);
-            //console.log(response["tables"][0]["rows"][1]);
-            //console.log(response["tables"][0]["rows"][2]);
-            //console.log("****************************************************");
             if (oldresult4 != newresult4 && oldresult4 != "" && Math.abs(Number(newresult4)-Number(oldresult4)) >= 100) {
               bot.reply(
                 message,
@@ -952,7 +974,7 @@ var fuzzy = fuzzyset(all_commands);
       
       // Checks if user is asking for the 5 most called APIs
       else if (most_called_apis.includes(command_result[0][1]) == true) {
-        var commas = 1;
+        var commas = 1; 
         for (var i = 0; i < result4.length; i++)
         {
           if (result4[i] == ',')
@@ -975,7 +997,7 @@ var fuzzy = fuzzyset(all_commands);
       
       // Checks if user is asking for the least called operation
       else if (least_called_operation.includes(command_result[0][1]) == true) {
-        var text = "Your least called operation is " + result5 + ".";
+        var text = "Your least called operation is " + result5 + " with " + result45 + " hits in the past 28 days.";
       }
       
       // Checks if user is asking for the least called operation for 'sessions'
@@ -1023,7 +1045,7 @@ var fuzzy = fuzzyset(all_commands);
       
       // Checks if user is asking for the most called operation
       else if (most_called_operation.includes(command_result[0][1]) == true) {
-        var text = "Your most called operation is " + result12 + ".";
+        var text = "Your most called operation is " + result12 + " with " + result44 + " hits in the past 28 days.";
       }
       
       // Checks if user is asking for the most called operation for 'sessions'
@@ -1200,6 +1222,16 @@ var fuzzy = fuzzyset(all_commands);
           var text = result43;
       }
       
+      /////////////////////////
+      //     Reports
+      /////////////////////////
+      // Checks if user is asking for a report
+      else if (reports.includes(command_result[0][1]) == true) {
+          var text = "Your least called API is " + result1 + ".  \n";
+          text += "Your most called API is " + result3 + ".  \n";
+          text += "Your least called operation is " + result5 + " with " + result45 + " hits in the past 28 days.  \n";
+          text += "Your most called operation is " + result12 + " with " + result44 + " hits in the past 28 days.";
+      }
       
       // User is not specific enough
       else
