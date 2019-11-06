@@ -36,7 +36,7 @@ module.exports = function(controller) {
     
 
   function get_token() {
-    request(options, function(error, response, body) {
+    var r = request(options, function(error, response, body) {
       if (error) throw new Error(error);
       var len = body.length;
       var start = body.indexOf("access_token");
