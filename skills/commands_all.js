@@ -5,13 +5,19 @@
 module.exports = function(controller) {  
 
 var source = require('./atoken.js');
-var token;
+var token = source.get_token();
 setInterval(function () { 	
   token = source.get_token();	
+}, 10000); 	  
+
+setInterval(function () { 	
   console.log("###########################################");
   console.log("token is:" + token);
-  console.log("###########################################");
-  var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
+  console.log("###########################################"); 
+}, 10000); 	    
+ 
+
+var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
     result7 = "", result8 = "", result9 = "", result10 = "", result11 = "", result12 = "",
     result13 = "", result14 = "", result15 = "", result16 = "", result17 = "", result18 = "",
     result19 = "", result20 = "", result21 = "", result22 ="", result23 = "", result24 = "",
@@ -36,108 +42,125 @@ const { window } = new JSDOM();
 const {document} = (new JSDOM('<script></script>')).window;
 global.document = document;
 var $ = jQuery = require('jquery')(window);
-var settings = {
-	        "async": true,
-	        "crossDomain": true,
-	        "url": "https://api.loganalytics.io/v1/workspaces/188e060f-1491-4080-acee-d92acbff84f3/query",
-	        "type": "POST",
-	        "headers": {
-		        "Content-Type": "application/json",
-		        "Authorization": "Bearer " + token,
-		        "Postman-Token": "cef60051-9b20-4953-a83f-3da83fee0fd2,1499eec5-079a-4aab-aef5-6190439ece14",
-	        },
-	        "processData": false,
-	        "timeout": 100000
-};
+var settings;
 
-// Checks to see if any data was returned from the AJAX call.
-// If no data was returned, an error message is returned
-// If the first data value is an empty string, the function will get the data from the next row
-function checkResult(result, row_num, is_unit=false)
-{
-  try {
-    var r = result["tables"][0]["rows"][0][row_num];
-    if (r === "")
-    {
-      r = result["tables"][0]["rows"][1][row_num];
+setInterval(function() {
+  settings = {
+    async: true,
+    crossDomain: true,
+    url:
+      "https://api.loganalytics.io/v1/workspaces/188e060f-1491-4080-acee-d92acbff84f3/query",
+    type: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+      "Postman-Token":
+        "cef60051-9b20-4953-a83f-3da83fee0fd2,1499eec5-079a-4aab-aef5-6190439ece14"
+    },
+    processData: false,
+    timeout: 100000
+  };
+
+  // Checks to see if any data was returned from the AJAX call.
+  // If no data was returned, an error message is returned
+  // If the first data value is an empty string, the function will get the data from the next row
+  function checkResult(result, row_num, is_unit = false) {
+    try {
+      var r = result["tables"][0]["rows"][0][row_num];
+      if (r === "") {
+        r = result["tables"][0]["rows"][1][row_num];
+      }
+    } catch (err) {
+      var r = "not available right now because no data was found.";
+    }
+    if (is_unit === true) {
+      r = appendUnit(r);
+    }
+    console.log(r);
+    return r;
+  }
+
+  // Adds ms to a string if a value is associated with the string
+  function appendUnit(string) {
+    if (string != "not available right now because no data was found.") {
+      string += " ms.";
+    }
+    return string;
+  }
+
+  function increaseOrDecrease(one, two) {
+    if (one > two) {
+      return "decreased";
+    } else {
+      return "increased";
     }
   }
-  catch(err) {
-    var r = "not available right now because no data was found.";
-  }
-  if (is_unit === true)
-  {
-    r = appendUnit(r);
-  }
-  console.log(r);
-  return r;
-};
 
-// Adds ms to a string if a value is associated with the string
-function appendUnit(string)
-{
-  if (string != "not available right now because no data was found.")
-  {
-    string += " ms.";
-  }
-  return string
-}
+  // Formats the product usage data into a human-readable form
+  function formatProductUsage(result, product = null) {
+    var date_index = 0;
+    var count_index = 1;
+    if (product != null) {
+      date_index++;
+      count_index++;
+    }
 
-function increaseOrDecrease(one, two)
-{
-  if (one > two)
-  {
-    return "decreased";
-  }
-  else
-  {
-    return "increased";
-  }
-}
+    var week_4_count = result["tables"][0]["rows"][1][count_index]; // Most recent week
+    var week_3_count = result["tables"][0]["rows"][2][count_index];
+    var week_2_count = result["tables"][0]["rows"][3][count_index];
+    var week_1_count = result["tables"][0]["rows"][4][count_index]; // Least recent week
 
-// Formats the product usage data into a human-readable form
-function formatProductUsage(result, product=null)
-{
-  var date_index = 0;
-  var count_index = 1;
-  if (product != null)
-  {
-    date_index++;
-    count_index++;
+    var week_4_date = result["tables"][0]["rows"][1][date_index]; // Most recent week
+    var week_3_date = result["tables"][0]["rows"][2][date_index];
+    var week_2_date = result["tables"][0]["rows"][3][date_index];
+    var week_1_date = result["tables"][0]["rows"][4][date_index]; // Least recent week
+
+    if (product == "trusted-services") {
+      var message =
+        "Here is a summary of product usage for 'trusted-services' over the past 4 weeks: \n";
+    } else if (product == "trusted-consumer") {
+      var message =
+        "Here is a summary of product usage for 'trusted-consumer' over the past 4 weeks: \n";
+    } else {
+      var message =
+        "Here is a summary of product usage for all products over the past 4 weeks: \n";
+    }
+
+    message +=
+      "- For the week of " +
+      week_1_date +
+      ", there were " +
+      week_1_count +
+      " hits.\n";
+    message +=
+      "- For the week of " +
+      week_2_date +
+      ", the number of hits " +
+      increaseOrDecrease(week_1_count, week_2_count) +
+      " to " +
+      week_2_count +
+      " hits.\n";
+    message +=
+      "- For the week of " +
+      week_3_date +
+      ", the number of hits " +
+      increaseOrDecrease(week_2_count, week_3_count) +
+      " to " +
+      week_3_count +
+      " hits.\n";
+    message +=
+      "- For the week of " +
+      week_4_date +
+      ", the number of hits " +
+      increaseOrDecrease(week_3_count, week_4_count) +
+      " to " +
+      week_4_count +
+      " hits.\n";
+
+    return message;
   }
   
-  var week_4_count = result["tables"][0]["rows"][1][count_index];  // Most recent week
-  var week_3_count = result["tables"][0]["rows"][2][count_index];
-  var week_2_count = result["tables"][0]["rows"][3][count_index];
-  var week_1_count = result["tables"][0]["rows"][4][count_index];  // Least recent week
-  
-  var week_4_date = result["tables"][0]["rows"][1][date_index];  // Most recent week
-  var week_3_date = result["tables"][0]["rows"][2][date_index];
-  var week_2_date = result["tables"][0]["rows"][3][date_index];
-  var week_1_date = result["tables"][0]["rows"][4][date_index];  // Least recent week
-  
-  if (product == 'trusted-services')
-  {
-    var message = "Here is a summary of product usage for 'trusted-services' over the past 4 weeks: \n";
-  }
-  else if (product == 'trusted-consumer')
-  {
-    var message = "Here is a summary of product usage for 'trusted-consumer' over the past 4 weeks: \n";
-  }
-  else
-  {
-    var message = "Here is a summary of product usage for all products over the past 4 weeks: \n";
-  }
-  
-  message += "- For the week of " + week_1_date + ", there were " + week_1_count + " hits.\n";
-  message += "- For the week of " + week_2_date + ", the number of hits " + increaseOrDecrease(week_1_count, week_2_count) + " to " + week_2_count + " hits.\n";
-  message += "- For the week of " + week_3_date + ", the number of hits " + increaseOrDecrease(week_2_count, week_3_count) + " to " + week_3_count + " hits.\n";
-  message += "- For the week of " + week_4_date + ", the number of hits " + increaseOrDecrease(week_3_count, week_4_count) + " to " + week_4_count + " hits.\n";
-
-  return message;
-}
-
-/////////////////////////
+  /////////////////////////
 //       APIs
 /////////////////////////
 
@@ -456,6 +479,11 @@ settings.data =
           newrate +
           "."
     });
+
+}, 10000); 	    
+
+
+
 
 /*********************************************************************************
                               FUZZY STRING STUFF
@@ -1192,10 +1220,4 @@ var fuzzy = fuzzyset(all_commands);
     }
     bot.reply(message, text);
   });
-}, 10000); 	  
-
-//console.log('***********real token is : ' + token + '*************');
-  
-
-
 }
