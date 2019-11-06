@@ -767,7 +767,7 @@ var fuzzy = fuzzyset(all_commands);
       
       // Checks if user is saying hello
       if (hellos.includes(command_result[0][1]) == true) {
-        var text = "Hello from the other side! This is the glitch version.";
+        var text = "Hello from the other side! This is the heroku version.";
         /**************************************************************************
                     alert for sudden shift of traffic/latency/errors
         ***************************************************************************/
