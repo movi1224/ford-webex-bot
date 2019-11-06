@@ -1,5 +1,6 @@
 module.exports = function(controller) {
-  var request = require("request");
+  
+var request = require("request");
   var fs = require("fs");
   var a = "";
   var token = "";
@@ -31,26 +32,29 @@ module.exports = function(controller) {
       client_secret: "Bc]OB8]4LfmLqOdDu0z:oI1lIjgD.Lft"
     }
   };
-
   
-    
-
-  function get_token() {
-    var r = request(options, function(error, response, body) {
-      if (error) throw new Error(error);
-      var len = body.length;
-      var start = body.indexOf("access_token");
-      token = body.substring(start + 15, len - 2);
-      var data = fs.writeFile("token.txt", token, function(err) {
-        if (err) {
-          console.log("error in buffering token.");
-        }
+    timeout = setInterval(() => {
+      request(options, function(error, response, body) {
+        if (error) throw new Error(error);
+        var len = body.length;
+        var start = body.indexOf("access_token");
+        token = body.substring(start + 15, len - 2);
+        console.log("token received");
+        var out = fs.writeFile("token.txt", token, function(err) {
+          if (err) {
+            console.log("error in buffering token.");
+          }
+        });
       });
-    });
-    var pwd = fs.readFileSync("token.txt");
-    var output = pwd.toString();
+    }, 10000);
+  
+   function get_token() {
+    var token = fs.readFileSync("token.txt");
+    var output = token.toString();
+    console.log(output);
     return output;
   }
+    
 
   module.exports = {
     get_token
