@@ -1,11 +1,17 @@
-
 /*********************************************************************************
                           AJAX LOG ANALYTICS API CALLS
 **********************************************************************************/
-var source = require('./atoken.js');
-var token = source.get_token();
 
-var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
+module.exports = function(controller) {  
+
+var source = require('./atoken.js');
+var token;
+setInterval(function () { 	
+  token = source.get_token();	
+  console.log("###########################################");
+  console.log("token is:" + token);
+  console.log("###########################################");
+  var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
     result7 = "", result8 = "", result9 = "", result10 = "", result11 = "", result12 = "",
     result13 = "", result14 = "", result15 = "", result16 = "", result17 = "", result18 = "",
     result19 = "", result20 = "", result21 = "", result22 ="", result23 = "", result24 = "",
@@ -461,7 +467,7 @@ var all_commands = [];
 //    Basic Commands
 /////////////////////////
 
-// hello
+// Hello
 var hellos = ["hello", "hey", "hi", "good morning", "good afternoon", "good evening", "to meet you", "yo"];
 all_commands = all_commands.concat(hellos);
 
@@ -715,7 +721,6 @@ var fuzzy = fuzzyset(all_commands);
 /*********************************************************************************
                                     CHATBOT
 **********************************************************************************/
-module.exports = function(controller) {
 
   controller.hears('.*', 'direct_message,direct_mention', function(bot, message) {
     'use strict';
@@ -734,7 +739,7 @@ module.exports = function(controller) {
       
       // Checks if user is saying hello
       if (hellos.includes(command_result[0][1]) == true) {
-        var text = "Hello from the other side! This is the heroku version.";
+        var text = "Hello from the other side! This is the glitch version.";
         /**************************************************************************
                     alert for sudden shift of traffic/latency/errors
         ***************************************************************************/
@@ -748,8 +753,8 @@ module.exports = function(controller) {
           r.done(function(response) {
             try {
               newresult = response["tables"][0]["rows"][0][1];
-              console.log(response["tables"][0]["rows"][0]);
-              console.log(response["tables"][0]["rows"][1]);              
+              //console.log(response["tables"][0]["rows"][0]);
+              //console.log(response["tables"][0]["rows"][1]);              
             } catch (err) {
               bot.reply(message, "Time tracked: " + date + " **error**");
             }
@@ -778,8 +783,8 @@ module.exports = function(controller) {
           r.done(function(response) {
             newresult1 = response["tables"][0]["rows"][0][1];
             //console.log("*********************test1**************************");
-            console.log(response["tables"][0]["rows"][0]);
-            console.log(response["tables"][0]["rows"][1]);
+            //console.log(response["tables"][0]["rows"][0]);
+            //console.log(response["tables"][0]["rows"][1]);
             //console.log(response["tables"][0]["rows"][2]);
             //console.log("****************************************************");
             if (oldresult1 != newresult1 && oldresult1 != "" && Math.abs(Number(newresult1)-Number(oldresult1)) >= 1000) {
@@ -802,8 +807,8 @@ module.exports = function(controller) {
           r.done(function(response) {
             newresult2 = response["tables"][0]["rows"][0][1];
             //console.log("*********************test1**************************");
-            console.log(response["tables"][0]["rows"][0]);
-            console.log(response["tables"][0]["rows"][1]);
+            //console.log(response["tables"][0]["rows"][0]);
+            //console.log(response["tables"][0]["rows"][1]);
             //console.log(response["tables"][0]["rows"][2]);
             //console.log("****************************************************");
             if (oldresult2 != newresult2 && oldresult2 != "" && Math.abs(Number(newresult2)-Number(oldresult2)) >= 5000) {
@@ -825,8 +830,8 @@ module.exports = function(controller) {
           r.done(function(response) {
             newresult3 = response["tables"][0]["rows"][0][1];
             //console.log("*********************test1**************************");
-            console.log(response["tables"][0]["rows"][0]);
-            console.log(response["tables"][0]["rows"][1]);
+            //console.log(response["tables"][0]["rows"][0]);
+           // console.log(response["tables"][0]["rows"][1]);
             //console.log(response["tables"][0]["rows"][2]);
             //console.log("****************************************************");
             if (oldresult3 != newresult3 && oldresult3 != "" && Math.abs(Number(newresult3)-Number(oldresult3)) >= 5000) {
@@ -848,8 +853,8 @@ module.exports = function(controller) {
           r.done(function(response) {
             newresult4 = response["tables"][0]["rows"][0][1];
             //console.log("*********************test1**************************");
-            console.log(response["tables"][0]["rows"][0]);
-            console.log(response["tables"][0]["rows"][1]);
+            //console.log(response["tables"][0]["rows"][0]);
+            //console.log(response["tables"][0]["rows"][1]);
             //console.log(response["tables"][0]["rows"][2]);
             //console.log("****************************************************");
             if (oldresult4 != newresult4 && oldresult4 != "" && Math.abs(Number(newresult4)-Number(oldresult4)) >= 100) {
@@ -1187,4 +1192,10 @@ module.exports = function(controller) {
     }
     bot.reply(message, text);
   });
+}, 10000); 	  
+
+//console.log('***********real token is : ' + token + '*************');
+  
+
+
 }
