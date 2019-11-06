@@ -3,6 +3,7 @@ module.exports = function(controller) {
   var fs = require("fs");
   var a = "";
   var token = "";
+  var timeout;
   var options = {
     method: "POST",
     url:
@@ -31,24 +32,23 @@ module.exports = function(controller) {
     }
   };
 
-  timeout = setInterval(() => {
+  
+    
+
+  function get_token() {
     request(options, function(error, response, body) {
       if (error) throw new Error(error);
       var len = body.length;
       var start = body.indexOf("access_token");
       token = body.substring(start + 15, len - 2);
-      fs.writeFile("token.txt", token, function(err) {
-        //console.log("******************token.txt updated*****************************");
+      var data = fs.writeFile("token.txt", token, function(err) {
         if (err) {
           console.log("error in buffering token.");
         }
       });
     });
-  }, 10000);
-
-  function get_token() {
-    var token = fs.readFileSync("token.txt");
-    var output = token.toString();
+    var pwd = fs.readFileSync("token.txt");
+    var output = pwd.toString();
     return output;
   }
 
