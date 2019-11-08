@@ -1142,7 +1142,7 @@ module.exports = function(controller) {
 
           // Checks if user is saying hello
           if (hellos.includes(command_result[0][1]) == true) {
-            var text = "Hello from the other side! This is glitch version.";
+            var text = "Hello from the other side! This is the server version.";
             /**************************************************************************
                     alert for sudden shift of traffic/latency/errors
             ***************************************************************************/
