@@ -1136,7 +1136,7 @@ module.exports = function(controller) {
           
           // Checks if user is saying hello
           if (hellos.includes(command_result[0][1]) == true) {
-            var text = "Hello from the other side! API monitoring service has started.(glitch version)";
+            var text = "Hello from the other side! API monitoring service has started.(heroku version)";
             
             /////////////////////////
             //        Alerts
