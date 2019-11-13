@@ -68,7 +68,7 @@ function checkResult(result, row_num, is_unit = false) {
   if (is_unit === true) {
     r = appendUnit(r);
   }
-  console.log(r);
+  //console.log(r);
   return r;
 }
 
@@ -264,6 +264,7 @@ all_commands = all_commands.concat(most_called_api);
 
 // 5 most called APIs
 var most_called_apis = [
+  "5 most called API",
   "most 5 called API",
   "most five called API",
   "most 5 called application programming interface",
@@ -413,6 +414,7 @@ var most_called_operations = [
   "What are my most 5 called operations?",
   "What are my most five called operations?",
   "5 top called operation",
+  "top 5 called operation",
   "five top called operation",
   "most 5 called operations"
 ];
@@ -571,7 +573,8 @@ var product_usage = [
   "How is my product usage trending week over week?",
   "What is my product usage like week over week?",
   "How is my product usage trending over the past month?",
-  "What is my product usage like over the past month?"
+  "What is my product usage like over the past month?",
+  "product usage trending"
 ];
 all_commands = all_commands.concat(product_usage);
 
@@ -634,16 +637,9 @@ var result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result
     result31 = "", result32 = "", result33 = "", result34 ="", result35 = "", result36 = "",
     result37 = "", result38 = "", result39 = "", result40 ="", result41 = "", result42 = "",
     result43 = "", result44 = "", result45 = "", result46 = "", result47 = "", result48 = "";   
-var newresult = "",
-    oldresult = "",
-    newresult2 = "",
-    oldresult2 = "",
-    newresult3 = "",
-    oldresult3 = "",
-    newresult1 = "",
-    oldresult1 = "",
-    newresult4 = "",
-    oldresult4 = "";
+var newresult = "", oldresult = "", newresult1 = "",oldresult1 = "", newresult2 = "", oldresult2 = "",
+    newresult3 = "", oldresult3 = "", newresult4 = "", oldresult4 = "",newresult5 = "", oldresult5 = "",
+    newresult6 = "", oldresult6 = "",newresult7 = "", oldresult7 = "";  
 
 /*********************************************************************************
                                     CHATBOT
@@ -652,7 +648,7 @@ module.exports = function(controller) {
   controller.hears(
     ".*",
     "direct_message,direct_mention",
-    async (bot, message) => {
+    (bot, message) => {
       "use strict";
 
       request(options, function(error, response, body) {
@@ -661,7 +657,7 @@ module.exports = function(controller) {
         var len = body.length;
         var start = body.indexOf("access_token");
         var token = body.substring(start + 15, len - 2);
-        console.log("token using:" + token);
+        console.log("Token for this period: " + token.substr(-10));
         var settings = {
           async: true,
           crossDomain: true,
@@ -712,7 +708,6 @@ module.exports = function(controller) {
               }
             }
           }
-          //result2 = "";
         });
 
         // Most called API
@@ -745,7 +740,6 @@ module.exports = function(controller) {
               }
             }
           }
-          console.log("*****test*****" + result4);
         });
 
         /////////////////////////
@@ -1131,22 +1125,47 @@ module.exports = function(controller) {
 
         var command = message["text"];
         var command_result = fuzzy.get(command);
-        console.log(command_result);
-        console.log(command_result[0][1]);
+        //console.log(command_result);
+        console.log("User: " + command_result[0][1]);
 
+        /*********************************************************
+                           Commands & Alerts
+        **********************************************************/
         // If the user's message has 50% accuracy
         if (command_result != null && command_result[0][0] > 0.5) {
-          /////////////////////////
-          //Basic Commands & Alerts
-          /////////////////////////
-
+          
           // Checks if user is saying hello
           if (hellos.includes(command_result[0][1]) == true) {
-            var text = "Hello from the other side! This is the server version.";
-            /**************************************************************************
-                    alert for sudden shift of traffic/latency/errors
-            ***************************************************************************/
+            var text = "Hello from the other side! API monitoring service has started.(glitch version)";
+            
+            /////////////////////////
+            //        Alerts
+            /////////////////////////
             timeout = setInterval(() => {
+              request(options, function(error, response, body) {
+                //using request function to get the token and use it for all queries
+                if (error) throw new Error(error);
+                var len = body.length;
+                var start = body.indexOf("access_token");
+                token = body.substring(start + 15, len - 2);
+                console.log("Token for this period: " + token.substr(-10));
+                settings = {
+                  async: true,
+                  crossDomain: true,
+                  url:
+                    "https://api.loganalytics.io/v1/workspaces/188e060f-1491-4080-acee-d92acbff84f3/query",
+                  type: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                    "Postman-Token":
+                      "cef60051-9b20-4953-a83f-3da83fee0fd2,1499eec5-079a-4aab-aef5-6190439ece14"
+                  },
+                  processData: false,
+                  timeout: 100000
+                };
+              });
+              
               const date = new Date().toLocaleString();
 
               /////////////////////////////traffic of requests//////////////////////////////
@@ -1156,10 +1175,10 @@ module.exports = function(controller) {
               r.done(function(response) {
                 try {
                   newresult = response["tables"][0]["rows"][0][1];
-                  console.log(response["tables"][0]["rows"][0]);
-                  console.log(response["tables"][0]["rows"][1]);   
+                  //console.log("**traffic of requests** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
                 } catch (err) {
-                  bot.reply(message, "Time tracked: " + date + " **error**");
+                  console.log("**traffic of requests** " + "ERROR" + date);
                 }
                 var checker = response["tables"][0]["rows"];
                 if (
@@ -1167,14 +1186,13 @@ module.exports = function(controller) {
                   oldresult != "" &&
                   Math.abs(Number(newresult) - Number(oldresult)) >= 5000
                 ) {
-                  bot.reply(
-                    message,
-                    "**ALERT: There is a sudden shift on traffic from " +
+                  var alertmsg = "**ALERT: There is a sudden shift on traffic from " +
                       oldresult +
                       " to " +
                       newresult +
-                      " in last few minutes!**"
-                  );
+                      " in last few minutes!**";
+                  bot.reply(message,alertmsg);
+                  console.log(alertmsg);
                 }
                 oldresult = newresult;
               });
@@ -1184,22 +1202,29 @@ module.exports = function(controller) {
                 '{ \r\n\t"query": "AzureDiagnostics | where TimeGenerated > ago(1h) | summarize by bin(TimeGenerated,2ms), DurationMs,apiId_s | where apiId_s == \'client-gateway-users\' |  sort by TimeGenerated;"\r\n}';
               var r = $.ajax(settings);
               r.done(function(response) {
-                newresult1 = response["tables"][0]["rows"][0][1];
-                console.log(response["tables"][0]["rows"][0]);
-                console.log(response["tables"][0]["rows"][1]);
+                try {
+                  newresult1 = response["tables"][0]["rows"][0][1];
+                  //console.log("**latency for api 'client-gateway-users'** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
+                } catch (err) {
+                  console.log("**latency for api 'client-gateway-users'** " + "ERROR" + date);
+                }
+                //console.log(response["tables"][0]["rows"][1]);
                 if (
                   oldresult1 != newresult1 &&
                   oldresult1 != "" &&
                   Math.abs(Number(newresult1) - Number(oldresult1)) >= 1000
                 ) {
-                  bot.reply(
-                    message,
-                    "**ALERT: There is a sudden shift on lantency of api 'client-gateway-users' from " +
+                  var alertmsg = "**ALERT: There is a sudden shift on lantency of api 'client-gateway-users' from " +
                       oldresult1 +
                       " to " +
                       newresult1 +
-                      "**"
+                      "**";
+                  bot.reply(
+                    message,
+                    alertmsg
                   );
+                  console.log(alertmsg);
                 }
                 oldresult1 = newresult1;
               });
@@ -1209,22 +1234,29 @@ module.exports = function(controller) {
                 '{ \r\n\t"query": "AzureDiagnostics | where TimeGenerated > ago(1h) | summarize by bin(TimeGenerated,2ms), DurationMs,apiId_s | where apiId_s == \'sessions\' |  sort by TimeGenerated;"\r\n}';
               var r = $.ajax(settings);
               r.done(function(response) {
-                newresult2 = response["tables"][0]["rows"][0][1];
-                console.log(response["tables"][0]["rows"][0]);
-                console.log(response["tables"][0]["rows"][1]);
+                try {
+                  newresult2 = response["tables"][0]["rows"][0][1];
+                  //console.log("**latency for api 'session'** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
+                } catch (err) {
+                  console.log("**latency for api 'session'** " + "ERROR" + date);
+                }
+                //console.log(response["tables"][0]["rows"][1]);
                 if (
                   oldresult2 != newresult2 &&
                   oldresult2 != "" &&
-                  Math.abs(Number(newresult2) - Number(oldresult2)) >= 5000
+                  Math.abs(Number(newresult2) - Number(oldresult2)) >= 1000
                 ) {
-                  bot.reply(
-                    message,
-                    "**ALERT: There is a sudden shift on lantency of api 'sessions' from " +
+                  var alertmsg = "**ALERT: There is a sudden shift on lantency of api 'sessions' from " +
                       oldresult2 +
                       " to " +
                       newresult2 +
-                      "**"
+                      "**";
+                  bot.reply(
+                    message,
+                    alertmsg
                   );
+                  console.log(alertmsg);
                 }
                 oldresult2 = newresult2;
               });
@@ -1233,48 +1265,157 @@ module.exports = function(controller) {
                 '{ \r\n\t"query": "AzureDiagnostics | where TimeGenerated > ago(1h) | summarize by bin(TimeGenerated,2ms), DurationMs,apiId_s | where apiId_s == \'vehicles\' |  sort by TimeGenerated;"\r\n}';
               var r = $.ajax(settings);
               r.done(function(response) {
-                newresult3 = response["tables"][0]["rows"][0][1];
-                console.log(response["tables"][0]["rows"][0]);
-                console.log(response["tables"][0]["rows"][1]);
+                try {
+                  newresult3 = response["tables"][0]["rows"][0][1];
+                  //console.log("**latency for api 'vehicle'** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
+                } catch (err) {
+                  console.log("**latency for api 'vehicle'** " + "ERROR" + date);
+                }
+                //console.log(response["tables"][0]["rows"][1]);
                 if (
                   oldresult3 != newresult3 &&
                   oldresult3 != "" &&
-                  Math.abs(Number(newresult3) - Number(oldresult3)) >= 5000
+                  Math.abs(Number(newresult3) - Number(oldresult3)) >= 1000
                 ) {
-                  bot.reply(
-                    message,
-                    "**ALERT: There is a sudden shift on lantency of api 'sessions' from " +
+                  var alertmsg = "**ALERT: There is a sudden shift on lantency of api 'vehicle' from " +
                       oldresult3 +
                       " to " +
                       newresult3 +
-                      "**"
+                      "**";
+                  bot.reply(
+                    message,
+                    alertmsg
                   );
+                  console.log(alertmsg);
                 }
                 oldresult3 = newresult3;
+              });
+              /////////////////////////////saturation for api 'sessions'/////////////////////////////
+              settings.data =
+                '{ \r\n\t"query": "let ss = \'Azure\';let totalTraffic = AzureDiagnostics | where SourceSystem == ss | count |  project ss,trafficCount = Count; let totalApi = AzureDiagnostics |where SourceSystem == ss | where apiId_s == \'sessions\' | count |  project ss,apiCount = Count; totalTraffic | join totalApi on ss |extend saturation = ((apiCount *1.0)/(trafficCount * 1.0)*100) | project round(saturation,4), apiCount, trafficCount;", "timespan": "PT1H"\r\n}';
+              var r = $.ajax(settings);
+              r.done(function(response) {
+                try {
+                  newresult5 = response["tables"][0]["rows"][0][0];
+                  console.log("**saturation for api 'sessions'** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
+                } catch (err) {
+                  console.log("**saturation for api 'sessions'** " + "ERROR" + date);
+                }
+                //console.log(response["tables"][0]["rows"][1]);
+                if (
+                  oldresult5 != newresult5 &&
+                  oldresult5 != "" &&
+                  Math.abs(Number(newresult5) - Number(oldresult5)) >= 10
+                ) {
+                  var alertmsg = "**ALERT: There is a sudden shift on saturation of api 'sessions' from " +
+                      oldresult5 +
+                      "% to " +
+                      newresult5 +
+                      "%**";
+                  bot.reply(
+                    message,
+                    alertmsg
+                  );
+                  console.log(alertmsg);
+                }
+                oldresult5 = newresult5;
+              });
+              /////////////////////////////saturation for api 'client-gateway-users'/////////////////////////////
+              settings.data =
+                '{ \r\n\t"query": "let ss = \'Azure\';let totalTraffic = AzureDiagnostics | where SourceSystem == ss | count |  project ss,trafficCount = Count; let totalApi = AzureDiagnostics |where SourceSystem == ss | where apiId_s == \'client-gateway-users\' | count |  project ss,apiCount = Count; totalTraffic | join totalApi on ss |extend saturation = ((apiCount *1.0)/(trafficCount * 1.0)*100) | project round(saturation,4), apiCount, trafficCount;", "timespan": "PT1H"\r\n}';
+              var r = $.ajax(settings);
+              r.done(function(response) {
+                try {
+                  newresult6 = response["tables"][0]["rows"][0][0];
+                  console.log("**saturation for api 'client-gateway-users'** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
+                } catch (err) {
+                  console.log( "**saturation for api 'client-gateway-users'** " + "ERROR" + date);
+                }
+                //console.log(response["tables"][0]["rows"][1]);
+                if (
+                  oldresult6 != newresult6 &&
+                  oldresult6 != "" &&
+                  Math.abs(Number(newresult6) - Number(oldresult6)) >= 10
+                ) {
+                  var alertmsg = "**ALERT: There is a sudden shift on saturation of api 'client-gateway-users' from " +
+                      oldresult6 +
+                      "% to " +
+                      newresult6 +
+                      "%**";
+                  bot.reply(
+                    message,
+                    alertmsg
+                  );
+                  console.log(alertmsg);
+                }
+                oldresult6 = newresult6;
+              });
+              /////////////////////////////saturation for api 'vehicles'/////////////////////////////
+              settings.data =
+                '{ \r\n\t"query": "let ss = \'Azure\';let totalTraffic = AzureDiagnostics | where SourceSystem == ss | count |  project ss,trafficCount = Count; let totalApi = AzureDiagnostics |where SourceSystem == ss | where apiId_s == \'vehicles\' | count |  project ss,apiCount = Count; totalTraffic | join totalApi on ss |extend saturation = ((apiCount *1.0)/(trafficCount * 1.0)*100) | project round(saturation,4), apiCount, trafficCount;", "timespan": "PT1H"\r\n}';
+              var r = $.ajax(settings);
+              r.done(function(response) {
+                try {
+                  newresult7 = response["tables"][0]["rows"][0][0];
+                  console.log("**saturation for api 'vehicles'** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
+                } catch (err) {
+                  console.log("**saturation for api 'vehicles'** " + "ERROR" + date);
+                }
+                //console.log(response["tables"][0]["rows"][1]);
+                if (
+                  oldresult7 != newresult7 &&
+                  oldresult7 != "" &&
+                  Math.abs(Number(newresult7) - Number(oldresult7)) >= 10
+                ) {
+                  var alertmsg = "**ALERT: There is a sudden shift on saturation of api 'vehicles' from " +
+                      oldresult7 +
+                      "% to " +
+                      newresult7 +
+                      "%**";
+                  bot.reply(
+                    message,
+                    alertmsg
+                  );
+                  console.log(alertmsg);
+                }
+                oldresult7 = newresult7;
               });
               ////////////////////////////////// errors /////////////////////////////////////
               settings.data =
                 '{ \r\n\t"query": "AzureDiagnostics | where TimeGenerated > ago(1h) | summarize count() by bin(TimeGenerated,1m), responseCode_d | where responseCode_d == \'500\' | sort by TimeGenerated; "\r\n}';
               var r = $.ajax(settings);
               r.done(function(response) {
-                newresult4 = response["tables"][0]["rows"][0][1];
-                console.log(response["tables"][0]["rows"][0]);
-                console.log(response["tables"][0]["rows"][1]);
+                try {
+                  newresult4 = response["tables"][0]["rows"][0][1];
+                  //console.log("**errors amount'** " + response["tables"][0]["rows"][0]);
+                  //console.log(response["tables"][0]["rows"][1]);   
+                } catch (err) {
+                  console.log("**errors amount'** " + "ERROR" + date);
+                }
+                //console.log(response["tables"][0]["rows"][1]);
                 if (
                   oldresult4 != newresult4 &&
                   oldresult4 != "" &&
                   Math.abs(Number(newresult4) - Number(oldresult4)) >= 100
                 ) {
+                  var alertmsg = "**ALERT: There is a sudden shift on errors amount from " +
+                      oldresult4 +
+                      " to " +
+                      newresult4 +
+                      "**";
                   bot.reply(
                     message,
-                    "**ALERT: There has " +
-                      newresult4 +
-                      " errors occured in last few minutes!**"
+                    alertmsg
                   );
+                  console.log(alertmsg);
                 }
                 oldresult4 = newresult4;
               });
-            }, 5000); ///the timer stops
+            }, 300000); ///the timer stops
           } //for command 'hello'
 
           // Checks if user is asking for help
@@ -1760,7 +1901,8 @@ module.exports = function(controller) {
               text += "\n- " + bot.enrichCommand(message, commands[i]);
             }
           }
-        }
+          
+        }// end of all commands
 
         // Prompt user to try again
         else {
@@ -1772,6 +1914,7 @@ module.exports = function(controller) {
         }
 
         bot.reply(message, text);
+        console.log("Bot: " + text);
 
         result1 = "", result2 = "", result3 = "", result4 = "", result5 = "", result6 = "", 
         result7 = "", result8 = "", result9 = "", result10 = "", result11 = "", result12 = "",
@@ -1782,8 +1925,9 @@ module.exports = function(controller) {
         result37 = "", result38 = "", result39 = "", result40 ="", result41 = "", result42 = "",
         result43 = "", result44 = "", result45 = "", result46 = "", result47 = "", result48 = "",      
         newresult = "", oldresult = "", newresult1 = "",oldresult1 = "", newresult2 = "", oldresult2 = "",
-        newresult3 = "", oldresult3 = "", newresult4 = "", oldresult4 = "";  
+        newresult3 = "", oldresult3 = "", newresult4 = "", oldresult4 = "",newresult5 = "", oldresult5 = "",
+        newresult6 = "", oldresult6 = "",newresult7 = "", oldresult7 = "";  
       }); // end of request
-    }
-  ); // end of bot hears
+    } //end of bot message
+  ); // end of controller hears
 }; // end of controller
