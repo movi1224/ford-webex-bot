@@ -1260,7 +1260,7 @@ module.exports = function(controller) {
                 }
                 oldresult2 = newresult2;
               });
-              /////////////////////////////latency for api 'vehicle'/////////////////////////////
+              /////////////////////////////latency for api 'vehicles'/////////////////////////////
               settings.data =
                 '{ \r\n\t"query": "AzureDiagnostics | where TimeGenerated > ago(1h) | summarize by bin(TimeGenerated,2ms), DurationMs,apiId_s | where apiId_s == \'vehicles\' |  sort by TimeGenerated;"\r\n}';
               var r = $.ajax(settings);
@@ -1270,7 +1270,7 @@ module.exports = function(controller) {
                   //console.log("**latency for api 'vehicle'** " + response["tables"][0]["rows"][0]);
                   //console.log(response["tables"][0]["rows"][1]);   
                 } catch (err) {
-                  console.log("**latency for api 'vehicle'** " + "ERROR" + date);
+                  console.log("**latency for api 'vehicles'** " + "ERROR" + date);
                 }
                 //console.log(response["tables"][0]["rows"][1]);
                 if (
@@ -1278,7 +1278,7 @@ module.exports = function(controller) {
                   oldresult3 != "" &&
                   Math.abs(Number(newresult3) - Number(oldresult3)) >= 1000
                 ) {
-                  var alertmsg = "**ALERT: There is a sudden shift on lantency of api 'vehicle' from " +
+                  var alertmsg = "**ALERT: There is a sudden shift on lantency of api 'vehicles' from " +
                       oldresult3 +
                       " to " +
                       newresult3 +
